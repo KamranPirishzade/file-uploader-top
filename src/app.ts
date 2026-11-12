@@ -1,5 +1,6 @@
 import express from "express";
 import path from "node:path";
+import authRouter from "./routes/authRouter.ts";
 
 const dirname = path.join(import.meta.dirname, "..");
 
@@ -15,6 +16,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.render("index");
 });
+
+app.use("/", authRouter);
 
 app.use((req, res) => {
   res.status(404).send("404 Not Found");
