@@ -24,4 +24,19 @@ async function createUser({
   return user;
 }
 
-export default { createUser };
+async function getUserByEmail(email: string) {
+  const user = await prisma.user.findUnique({
+    where: { email: email },
+  });
+  return user;
+}
+
+async function getUserById(id: number) {
+  const user = await prisma.user.findUnique({
+    where: { id: id },
+    omit: { hashedPassword: true },
+  });
+  return user;
+}
+
+export default { createUser, getUserByEmail, getUserById };

@@ -11,4 +11,9 @@ authRouter.post(
   authContoller.postSignup,
 );
 
+authRouter.get("/login", authContoller.getLoginPage);
+authRouter.post("/login", authContoller.postLogin);
+
+authRouter.post("/logout", authContoller.postLogout);
+
 export default authRouter;

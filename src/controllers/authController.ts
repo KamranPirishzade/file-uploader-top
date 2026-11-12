@@ -2,8 +2,9 @@ import { matchedData, validationResult, body } from "express-validator";
 import bcrypt from "bcryptjs";
 import userQuery from "../db/userQuery.ts";
 
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { isUniqueValidationError } from "../utils.ts";
+import passport from "passport";
 
 const signupValidation = [
   body("email")
@@ -59,4 +60,32 @@ async function postSignup(req: Request, res: Response) {
   }
 }
 
-export default { getSignup, postSignup, signupValidation };
+function getLoginPage(req: Request, res: Response) {
+  const messages = req.session.messages || [];
+  delete req.session.messages;
+  res.render("login", { error: messages.map((msg) => ({ msg })), data: {} });
+}
+
+const postLogin = passport.authenticate("local", {
+  successRedirect: "/",
+  failureRedirect: "/login",
+  failureMessage: true,
+});
+
+function postLogout(req: Request, res: Response, next: NextFunction) {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/login");
+  });
+}
+
+export default {
+  getSignup,
+  postSignup,
+  signupValidation,
+  getLoginPage,
+  postLogin,
+  postLogout,
+};
