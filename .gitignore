@@ -1,0 +1,12 @@
+node_modules/
+.env
+dist/
+public/output.css
+
+/src/generated/prisma
+
+# AI tool skills installed locally
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
