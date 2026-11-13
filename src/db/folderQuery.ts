@@ -51,9 +51,22 @@ async function updateFolderById({
   });
 }
 
+async function deleteFolderById({
+  folderId,
+  userId,
+}: {
+  folderId: number;
+  userId: number;
+}) {
+  return await prisma.folder.deleteMany({
+    where: { id: folderId, userId },
+  });
+}
+
 export default {
   getFoldersByUserId,
   createFolder,
   getFolderById,
   updateFolderById,
+  deleteFolderById,
 };

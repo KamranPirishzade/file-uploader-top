@@ -105,9 +105,41 @@ async function postUpdateFolder(req: Request, res: Response) {
   }
 }
 
+async function postDeleteFolder(req: Request, res: Response) {
+  const folderId = parseId(req.params.id);
+  if (folderId == null) {
+    res.status(400).send("Invalid folder ID");
+    return;
+  }
+  await folderQuery.deleteFolderById({
+    folderId,
+    userId: req.user!.id,
+  });
+  res.redirect("/");
+}
+
+async function getFolder(req: Request, res: Response) {
+  const folderId = parseId(req.params.id);
+  if (folderId == null) {
+    res.status(400).send("Invalid folder ID");
+    return;
+  }
+  const folder = await folderQuery.getFolderById({
+    folderId,
+    userId: req.user!.id,
+  });
+  if (!folder) {
+    res.status(404).send("Folder not found");
+    return;
+  }
+  res.render("folder", { folder });
+}
+
 export default {
   folderValidation,
   postCreateFolder,
   getEditFolder,
   postUpdateFolder,
+  postDeleteFolder,
+  getFolder,
 };

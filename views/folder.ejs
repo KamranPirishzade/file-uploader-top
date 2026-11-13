@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Folder <%= folder.name %></title>
+  </head>
+  <body>
+    <h1>Folder: <%= folder.name %></h1>
+    <p>Folder ID: <%= folder.id %></p>
+    <p>Created At: <%= folder.createdAt.toLocaleString() %></p>
+    <a href="/folders/<%= folder.id %>/edit">Edit Folder</a>
+    <form
+      action="/folders/<%= folder.id %>/delete"
+      method="POST"
+      onsubmit="return confirm('Are you sure you want to delete this folder?');"
+    >
+      <button type="submit">Delete Folder</button>
+    </form>
+  </body>
+</html>

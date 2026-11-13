@@ -12,9 +12,9 @@
       <form method="POST" action="/logout">
         <button type="submit">Logout</button>
       </form>
-      <%- include('partials/errors', { errors: errors }) %>
       <h2>Create a New Folder</h2>  
       <form method="POST" action="/folders/create">
+        <%- include('partials/errors', { errors: errors }) %>
         <input type="text" name="folderName" placeholder="Enter folder name" required />
         <button type="submit">Create Folder</button>
       </form>
