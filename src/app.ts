@@ -6,6 +6,8 @@ import expressSession from "express-session";
 import prisma from "./db/prisma.ts";
 import passport from "passport";
 import "./config/passport.ts";
+import folderQuery from "./db/folderQuery.ts";
+import folderRouter from "./routes/folderRouter.ts";
 
 const dirname = path.join(import.meta.dirname, "..");
 
@@ -51,11 +53,17 @@ app.use(
   },
 );
 
-app.get("/", (req, res) => {
-  res.render("index");
+app.get("/", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.render("index", { folders: [], errors: [], data: {} });
+    return;
+  }
+  const folders = await folderQuery.getFoldersByUserId(req.user!.id);
+  res.render("index", { folders, errors: [], data: {} });
 });
 
 app.use("/", authRouter);
+app.use("/folders", folderRouter);
 
 app.use((req, res) => {
   res.status(404).send("404 Not Found");

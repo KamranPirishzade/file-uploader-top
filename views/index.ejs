@@ -7,5 +7,27 @@
   </head>
   <body>
     <h1>File Uploader</h1>
+    <% if(currentUser) { %>
+      <p>Welcome, <%= currentUser.name %>!</p>
+      <form method="POST" action="/logout">
+        <button type="submit">Logout</button>
+      </form>
+      <%- include('partials/errors', { errors: errors }) %>
+      <h2>Create a New Folder</h2>  
+      <form method="POST" action="/folders/create">
+        <input type="text" name="folderName" placeholder="Enter folder name" required />
+        <button type="submit">Create Folder</button>
+      </form>
+      <ul>
+        <% if (folders.length === 0) { %>
+          <li>No folders available.</li>
+        <% } else { %>
+            <%- include('folders', { folders: folders }) %>
+        <% } %>
+      </ul>
+    <% } else { %>
+      <p>You are not logged in.</p>
+      <a href="/login">Login</a> | <a href="/signup">Sign Up</a>
+    <% } %>
   </body>
 </html>

@@ -1,0 +1,9 @@
+<% folders.forEach(function(folder) { %>
+   <li>
+    <a href="/folders/<%= folder.id %>"><%= folder.name %></a>
+        <a href="/folders/<%= folder.id %>/edit">Edit</a>
+        <form action="/folders/<%= folder.id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this folder?');">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
+<% }); %>

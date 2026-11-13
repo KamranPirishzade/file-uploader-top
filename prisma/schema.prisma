@@ -19,6 +19,7 @@ model User {
   name           String
   surname        String
   createdAt      DateTime @default(now())
+  folders        Folder[]
 }
 
 model Session {
@@ -26,4 +27,15 @@ model Session {
   sid       String   @unique
   data      String
   expiresAt DateTime
+}
+
+model Folder {
+  id        Int      @id @default(autoincrement())
+  name      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  createdAt DateTime @default(now())
+
+  @@unique([name, userId])
+  @@index([userId])
 }

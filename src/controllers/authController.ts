@@ -81,6 +81,11 @@ function postLogout(req: Request, res: Response, next: NextFunction) {
   });
 }
 
+export function requireLogin(req: Request, res: Response, next: NextFunction) {
+  if (!req.user) return res.redirect("/login");
+  next();
+}
+
 export default {
   getSignup,
   postSignup,
