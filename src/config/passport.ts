@@ -9,17 +9,6 @@ declare module "express-session" {
   }
 }
 
-declare global {
-  namespace Express {
-    interface User {
-      id: number;
-      name: string;
-      surname: string;
-      email: string;
-    }
-  }
-}
-
 passport.use(
   new LocalStrategy(
     { usernameField: "email" },
