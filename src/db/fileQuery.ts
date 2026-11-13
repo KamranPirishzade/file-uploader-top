@@ -27,4 +27,34 @@ function addFileToFolder({
   });
 }
 
-export default { addFileToFolder };
+async function getFilesByFolderId({
+  folderId,
+  userId,
+}: {
+  folderId: number;
+  userId: number;
+}) {
+  return await prisma.file.findMany({
+    where: { folderId, userId },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+async function getFileById({ id, userId }: { id: number; userId: number }) {
+  return await prisma.file.findUnique({
+    where: { id, userId },
+  });
+}
+
+async function deleteFileById({ id, userId }: { id: number; userId: number }) {
+  return await prisma.file.deleteMany({
+    where: { id, userId },
+  });
+}
+
+export default {
+  addFileToFolder,
+  getFilesByFolderId,
+  getFileById,
+  deleteFileById,
+};

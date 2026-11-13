@@ -26,5 +26,20 @@
       <input type="file" name="file" />
       <button type="submit">Upload File</button>
     </form>
+    <% if(files.length === 0) { %>
+      <p>No files in this folder.</p>
+    <% } else { %>
+      <h2>Files in this folder:</h2>
+      <ul>
+        <% files.forEach(file => { %>
+          <li>
+            <a href="/files/<%= file.id %>"><%= file.originalName %></a>
+            <span>Size: <%= bytesToSize(file.size) %></span>
+            (Uploaded at: <%= file.createdAt.toLocaleString() %>)
+          </li>
+        <% }) %>
+      </ul>
+    <% } %> 
+
   </body>
 </html>

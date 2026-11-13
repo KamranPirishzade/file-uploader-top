@@ -1,4 +1,4 @@
-import type { Folder } from "./generated/prisma/client.ts";
+import type { Folder, File } from "./generated/prisma/client.ts";
 
 declare global {
   namespace Express {
@@ -10,6 +10,7 @@ declare global {
     }
     interface Request {
       folder?: Folder;
+      storedFile?: File;
     }
   }
 }

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File: <%= file.originalName %></title>
+  </head>
+  <body>
+    <a href="/folders/<%= file.folderId %>">Back to Folder</a>
+    <h1>File: <%= file.originalName %></h1>
+    <p>File ID: <%= file.id %></p>
+    <p>Size: <%= bytesToSize(file.size) %></p>
+    <p>MIME Type: <%= file.mimeType %></p>
+    <p>Uploaded At: <%= file.createdAt.toLocaleString() %></p>
+    <a href="/files/<%= file.id %>/download">Download File</a>
+    <form
+      action="/files/<%= file.id %>/delete"
+      method="POST"
+      onsubmit="return confirm('Are you sure you want to delete this file?');"
+    >
+      <button type="submit">Delete File</button>
+    </form>
+  </body>
+</html>

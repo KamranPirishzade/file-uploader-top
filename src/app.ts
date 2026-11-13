@@ -8,6 +8,8 @@ import passport from "passport";
 import "./config/passport.ts";
 import folderQuery from "./db/folderQuery.ts";
 import folderRouter from "./routes/folderRouter.ts";
+import fileRouter from "./routes/fileRouter.ts";
+import { bytesToSize } from "./utils.ts";
 
 const dirname = path.join(import.meta.dirname, "..");
 
@@ -17,6 +19,8 @@ app.set("views", path.join(dirname, "views"));
 app.set("view engine", "ejs");
 
 app.set("trust proxy", 1);
+
+app.locals.bytesToSize = bytesToSize;
 
 app.use(express.static(path.join(dirname, "public")));
 
@@ -64,6 +68,7 @@ app.get("/", async (req, res) => {
 
 app.use("/", authRouter);
 app.use("/folders", folderRouter);
+app.use("/files", fileRouter);
 
 app.use((req, res) => {
   res.status(404).send("404 Not Found");

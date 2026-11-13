@@ -3,6 +3,7 @@ import folderQuery from "../db/folderQuery.ts";
 import type { NextFunction, Request, Response } from "express";
 import { isUniqueValidationError, parseId } from "../utils.ts";
 import fileQuery from "../db/fileQuery.ts";
+import { unlink } from "node:fs/promises";
 
 const folderValidation = [
   body("folderName")
@@ -98,21 +99,53 @@ async function postUpdateFolder(req: Request, res: Response) {
 }
 
 async function postDeleteFolder(req: Request, res: Response) {
+  const files = await fileQuery.getFilesByFolderId({
+    folderId: req.folder!.id,
+    userId: req.user!.id,
+  });
+
   await folderQuery.deleteFolderById({
     folderId: req.folder!.id,
     userId: req.user!.id,
   });
+
+  (
+    await Promise.allSettled(files.map((file) => unlink(file.storagePath)))
+  ).forEach((result) => {
+    if (
+      result.status === "rejected" &&
+      (result.reason as NodeJS.ErrnoException).code !== "ENOENT"
+    ) {
+      console.error(result.reason);
+    }
+  });
+
   res.redirect("/");
 }
 
 async function getFolder(req: Request, res: Response) {
-  res.render("folder", { folder: req.folder!, errors: [], data: {} });
+  const files = await fileQuery.getFilesByFolderId({
+    folderId: req.folder!.id,
+    userId: req.user!.id,
+  });
+
+  res.render("folder", {
+    folder: req.folder!,
+    errors: [],
+    data: {},
+    files,
+  });
 }
 
 async function postUploadFile(req: Request, res: Response) {
   if (!req.file) {
+    const files = await fileQuery.getFilesByFolderId({
+      folderId: req.folder!.id,
+      userId: req.user!.id,
+    });
     res.render("folder", {
       folder: req.folder!,
+      files,
       errors: [{ msg: "No file uploaded" }],
       data: {},
     });
