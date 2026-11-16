@@ -9,6 +9,7 @@ import "./config/passport.ts";
 import folderQuery from "./db/folderQuery.ts";
 import folderRouter from "./routes/folderRouter.ts";
 import fileRouter from "./routes/fileRouter.ts";
+import shareRouter from "./routes/shareRouter.ts";
 import { bytesToSize } from "./utils.ts";
 
 const dirname = path.join(import.meta.dirname, "..");
@@ -69,6 +70,7 @@ app.get("/", async (req, res) => {
 app.use("/", authRouter);
 app.use("/folders", folderRouter);
 app.use("/files", fileRouter);
+app.use("/share", shareRouter);
 
 app.use((req, res) => {
   res.status(404).send("404 Not Found");

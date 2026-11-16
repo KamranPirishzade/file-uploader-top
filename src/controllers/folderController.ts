@@ -7,6 +7,7 @@ import supabase from "../config/supabase.ts";
 import { randomUUID } from "node:crypto";
 import { MulterError } from "multer";
 import { InvalidFileTypeError } from "../config/multer.ts";
+import shareQuery from "../db/shareQuery.ts";
 
 const folderValidation = [
   body("folderName")
@@ -15,6 +16,12 @@ const folderValidation = [
     .withMessage("Folder name is required")
     .isLength({ max: 100 })
     .withMessage("Folder name must be at most 100 characters long"),
+];
+
+const shareLinkValidation = [
+  body("expiresInDays")
+    .isIn(["1", "7", "30"])
+    .withMessage("Invalid expiration value. Must be 1, 7, or 30 days."),
 ];
 
 async function loadFolder(req: Request, res: Response, next: NextFunction) {
@@ -223,6 +230,34 @@ async function handleUploadError(
   next(err);
 }
 
+async function postShareFolder(req: Request, res: Response) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).render("folder", {
+      folder: req.folder!,
+      errors: errors.array(),
+      data: {},
+      files: await fileQuery.getFilesByFolderId({
+        folderId: req.folder!.id,
+        userId: req.user!.id,
+      }),
+    });
+    return;
+  }
+  const { expiresInDays } = matchedData(req);
+
+  const expireTime = new Date(
+    Date.now() + parseInt(expiresInDays) * 24 * 60 * 60 * 1000,
+  );
+
+  const link = await shareQuery.addShareLink({
+    folderId: req.folder!.id,
+    expiresAt: expireTime,
+  });
+
+  const shareLink = `${req.protocol}://${req.get("host")}/share/${link.id}`;
+  res.redirect(shareLink);
+}
 export default {
   folderValidation,
   loadFolder,
@@ -233,4 +268,6 @@ export default {
   getFolder,
   postUploadFile,
   handleUploadError,
+  postShareFolder,
+  shareLinkValidation,
 };

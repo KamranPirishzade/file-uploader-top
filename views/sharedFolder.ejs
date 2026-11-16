@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shared Folder: <%= folder.name %></title>
+  </head>
+  <body>
+    <h1>Shared Folder: <%= folder.name %></h1>
+    <p>Folder ID: <%= folder.id %></p>
+    <p>Created At: <%= folder.createdAt.toLocaleString() %></p>
+    <% if(files.length === 0) { %>
+      <p>No files in this shared folder.</p>
+    <% } else { %>
+      <h2>Files in this shared folder:</h2>
+      <ul>
+        <% files.forEach(file => { %>
+          <li>
+            <a href="/share/<%= shareId %>/files/<%= file.id %>/download"><%= file.originalName %></a>
+            <span>Size: <%= bytesToSize(file.size) %></span>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </body>
+</html>

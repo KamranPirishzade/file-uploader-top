@@ -41,4 +41,11 @@ folderRouter.post(
   folderController.handleUploadError,
 );
 
+folderRouter.post(
+  "/:id/share",
+  folderController.loadFolder,
+  folderController.shareLinkValidation,
+  folderController.postShareFolder,
+);
+
 export default folderRouter;
