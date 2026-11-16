@@ -2,6 +2,10 @@
 
 A small personal file storage app, a stripped-down Google Drive, built for [The Odin Project](https://www.theodinproject.com/lessons/nodejs-file-uploader). Users keep files in folders, download them, and share a folder with anyone through a link that expires.
 
+**Live demo:** https://file-uploader-top-vin3.onrender.com
+
+> The demo runs on free plans, so the first visit after a quiet period can take up to a minute to load. See [Free hosting notes](#free-hosting-notes).
+
 ## Features
 
 - Sign up and log in with sessions that are stored in PostgreSQL through Prisma
@@ -249,3 +253,13 @@ The app can run on any Node.js host with a PostgreSQL database.
 - Environment variables: `DATABASE_URL`, `AUTH_SECRET`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `SUPABASE_BUCKET`, `NODE_ENV=production`
 
 `prisma migrate deploy` applies any new migrations to the production database and never resets it. With `NODE_ENV=production`, the session cookie is only sent over HTTPS, so the site must be served over HTTPS for login to work.
+
+The live demo runs on [Render](https://render.com) and uses [Supabase Storage](https://supabase.com/docs/guides/storage) for the files.
+
+## Free hosting notes
+
+The live demo uses free plans, which come with a few limits:
+
+- **Render:** the server goes to sleep after about 15 minutes without visitors. The next visit wakes it up, which can take up to a minute.
+- **Supabase:** a free project is paused after about a week without activity. While it's paused, uploads and downloads fail, and the project has to be restored from the Supabase dashboard. Free storage is limited to 1 GB in total.
+- **Uploads:** files are limited to 10 MB by the app. Supabase's free plan also allows at most 50 MB per file.
