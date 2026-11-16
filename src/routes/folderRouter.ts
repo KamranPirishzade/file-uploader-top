@@ -38,6 +38,7 @@ folderRouter.post(
   folderController.loadFolder,
   uploadMiddleware,
   folderController.postUploadFile,
+  folderController.handleUploadError,
 );
 
 export default folderRouter;

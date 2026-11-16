@@ -3,7 +3,10 @@ import folderQuery from "../db/folderQuery.ts";
 import type { NextFunction, Request, Response } from "express";
 import { isUniqueValidationError, parseId } from "../utils.ts";
 import fileQuery from "../db/fileQuery.ts";
-import { unlink } from "node:fs/promises";
+import supabase from "../config/supabase.ts";
+import { randomUUID } from "node:crypto";
+import { MulterError } from "multer";
+import { InvalidFileTypeError } from "../config/multer.ts";
 
 const folderValidation = [
   body("folderName")
@@ -109,16 +112,15 @@ async function postDeleteFolder(req: Request, res: Response) {
     userId: req.user!.id,
   });
 
-  (
-    await Promise.allSettled(files.map((file) => unlink(file.storagePath)))
-  ).forEach((result) => {
-    if (
-      result.status === "rejected" &&
-      (result.reason as NodeJS.ErrnoException).code !== "ENOENT"
-    ) {
-      console.error(result.reason);
+  if (files.length > 0) {
+    const { data, error } = await supabase.storage
+      .from(process.env.SUPABASE_BUCKET as string)
+      .remove(files.map((file) => file.storagePath));
+
+    if (error) {
+      console.error("Error deleting files from Supabase storage:", error);
     }
-  });
+  }
 
   res.redirect("/");
 }
@@ -151,15 +153,74 @@ async function postUploadFile(req: Request, res: Response) {
     });
     return;
   }
-  await fileQuery.addFileToFolder({
-    folderId: req.folder!.id,
-    userId: req.user!.id,
-    originalName: req.file.originalname,
-    storagePath: req.file.path,
-    mimeType: req.file.mimetype,
-    size: req.file.size,
-  });
-  res.redirect(`/folders/${req.folder!.id}`);
+  const { data, error } = await supabase.storage
+    .from(process.env.SUPABASE_BUCKET as string)
+    .upload(`${req.user?.id}/${randomUUID()}`, req.file.buffer, {
+      contentType: req.file.mimetype,
+    });
+
+  if (error)
+    throw new Error(`Failed to upload file to Supabase: ${error.message}`);
+
+  const storagePath = data?.path;
+  const originalName = Buffer.from(req.file.originalname, "latin1").toString(
+    "utf8",
+  );
+
+  try {
+    await fileQuery.addFileToFolder({
+      folderId: req.folder!.id,
+      userId: req.user!.id,
+      originalName: originalName,
+      storagePath: storagePath,
+      mimeType: req.file.mimetype,
+      size: req.file.size,
+    });
+    res.redirect(`/folders/${req.folder!.id}`);
+  } catch (error) {
+    if (storagePath) {
+      await supabase.storage
+        .from(process.env.SUPABASE_BUCKET as string)
+        .remove([storagePath]);
+    }
+    throw error;
+  }
+}
+
+async function handleUploadError(
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  if (err instanceof MulterError && err.code === "LIMIT_FILE_SIZE") {
+    const files = await fileQuery.getFilesByFolderId({
+      folderId: req.folder!.id,
+      userId: req.user!.id,
+    });
+    res.status(400).render("folder", {
+      folder: req.folder!,
+      errors: [{ msg: "File size exceeds the maximum limit of 10MB" }],
+      data: {},
+      files: files,
+    });
+    return;
+  }
+  if (err instanceof InvalidFileTypeError) {
+    const files = await fileQuery.getFilesByFolderId({
+      folderId: req.folder!.id,
+      userId: req.user!.id,
+    });
+    res.status(400).render("folder", {
+      folder: req.folder!,
+      errors: [{ msg: err.message }],
+      data: {},
+      files: files,
+    });
+    return;
+  }
+
+  next(err);
 }
 
 export default {
@@ -171,4 +232,5 @@ export default {
   postDeleteFolder,
   getFolder,
   postUploadFile,
+  handleUploadError,
 };

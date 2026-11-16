@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import fileQuery from "../db/fileQuery.ts";
 import { parseId } from "../utils.ts";
-import { unlink } from "node:fs/promises";
+import supabase from "../config/supabase.ts";
 
 async function loadFile(req: Request, res: Response, next: NextFunction) {
   const fileId = parseId(req.params.id);
@@ -34,16 +34,32 @@ async function postDeleteFile(req: Request, res: Response) {
     id: req.storedFile!.id,
     userId: req.user!.id,
   });
-  try {
-    await unlink(req.storedFile!.storagePath);
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== "ENOENT") console.error(err);
+
+  const { data, error } = await supabase.storage
+    .from(process.env.SUPABASE_BUCKET as string)
+    .remove([req.storedFile!.storagePath]);
+
+  if (error) {
+    console.error("Error deleting file from Supabase storage:", error);
   }
+
   res.redirect(`/folders/${req.storedFile!.folderId}`);
 }
 
 async function getFileDownload(req: Request, res: Response) {
-  res.download(req.storedFile!.storagePath, req.storedFile!.originalName);
+  const { data, error } = await supabase.storage
+    .from(process.env.SUPABASE_BUCKET as string)
+    .createSignedUrl(req.storedFile!.storagePath, 60);
+
+  if (error) {
+    console.error(error);
+    res.status(500).send("Error occurred while creating signed URL");
+    return;
+  }
+
+  res.redirect(
+    `${data.signedUrl}&download=${encodeURIComponent(req.storedFile!.originalName)}`,
+  );
 }
 
 export default { getFile, loadFile, postDeleteFile, getFileDownload };
