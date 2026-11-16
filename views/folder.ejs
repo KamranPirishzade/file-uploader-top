@@ -1,53 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Folder <%= folder.name %></title>
+    <%- include('partials/head', { pageTitle: folder.name }) %>
   </head>
   <body>
-    <h1>Folder: <%= folder.name %></h1>
-    <p>Folder ID: <%= folder.id %></p>
-    <p>Created At: <%= folder.createdAt.toLocaleString() %></p>
-    <a href="/folders/<%= folder.id %>/edit">Edit Folder</a>
-    <form
-      action="/folders/<%= folder.id %>/delete"
-      method="POST"
-      onsubmit="return confirm('Are you sure you want to delete this folder?');"
-    >
-      <button type="submit">Delete Folder</button>
-    </form>
-    <form
-      action="/folders/<%= folder.id %>/upload"
-      method="POST"
-      enctype="multipart/form-data"
-    >
-    <%- include('partials/errors', { errors: errors }) %>
-      <input type="file" name="file" />
-      <button type="submit">Upload File</button>
-    </form>
-    <% if(files.length === 0) { %>
-      <p>No files in this folder.</p>
-    <% } else { %>
-      <h2>Files in this folder:</h2>
-      <ul>
-        <% files.forEach(file => { %>
-          <li>
-            <a href="/files/<%= file.id %>"><%= file.originalName %></a>
-            <span>Size: <%= bytesToSize(file.size) %></span>
-            (Uploaded at: <%= file.createdAt.toLocaleString() %>)
-          </li>
-        <% }) %>
-      </ul>
-    <% } %> 
-    <h3>Share this folder:</h3>
-    <form action="/folders/<%= folder.id %>/share" method="POST">
-      <select name="expiresInDays">
-        <option value="1">1 day</option>
-        <option value="7">7 days</option>
-        <option value="30">30 days</option>
-      </select>
-      <button type="submit">Create Share Link</button>
-    </form>
+    <%- include('partials/header') %>
+
+    <main class="page">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">My Drive</a>
+        <span aria-hidden="true">/</span>
+        <span class="truncate"><%= folder.name %></span>
+      </nav>
+
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0">
+          <h1 class="page-title"><%= folder.name %></h1>
+          <p class="page-subtitle">
+            <%= files.length %> <%= files.length === 1 ? 'file' : 'files' %> · Created <%= formatDate(folder.createdAt) %>
+          </p>
+        </div>
+        <div class="flex shrink-0 gap-2">
+          <a href="/folders/<%= folder.id %>/edit" class="btn btn-secondary">Rename</a>
+          <form
+            action="/folders/<%= folder.id %>/delete"
+            method="POST"
+            onsubmit="return confirm('Delete this folder and all of its files?');"
+          >
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+      </div>
+
+      <form
+        action="/folders/<%= folder.id %>/upload"
+        method="POST"
+        enctype="multipart/form-data"
+        class="card mb-8 flex flex-col gap-3 p-4"
+      >
+        <label for="file" class="field-label">Upload a file</label>
+        <%- include('partials/errors', { errors: errors }) %>
+        <div class="inline-form">
+          <input type="file" id="file" name="file" class="file-input" required />
+          <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+        <p class="field-hint">Images, PDF, Word, Excel or PowerPoint · up to 10 MB</p>
+      </form>
+
+      <h2 class="section-title">Files</h2>
+      <% if (files.length === 0) { %>
+        <div class="empty-state">
+          <p class="font-medium text-gray-900">This folder is empty</p>
+          <p class="mt-1 text-sm text-gray-500">Upload a file above and it will show up here.</p>
+        </div>
+      <% } else { %>
+        <ul class="item-list">
+          <% files.forEach(file => { %>
+            <li class="item">
+              <span class="item-icon item-icon-file"><%- include('partials/fileIcon') %></span>
+              <div class="item-main">
+                <a href="/files/<%= file.id %>" class="item-name"><%= file.originalName %></a>
+                <p class="item-meta"><%= bytesToSize(file.size) %> · <%= formatDate(file.createdAt) %></p>
+              </div>
+              <div class="item-actions">
+                <a href="/files/<%= file.id %>/download" class="btn-ghost">Download</a>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+
+      <section class="card mt-8 p-4">
+        <h2 class="font-semibold text-gray-900">Share this folder</h2>
+        <p class="mt-1 text-sm text-gray-500">
+          Anyone with the link can see and download the files in this folder, without an account.
+        </p>
+        <form action="/folders/<%= folder.id %>/share" method="POST" class="inline-form mt-3">
+          <label for="expiresInDays" class="sr-only">Link expires after</label>
+          <select id="expiresInDays" name="expiresInDays" class="field-input sm:w-auto">
+            <option value="1">Expires in 1 day</option>
+            <option value="7" selected>Expires in 7 days</option>
+            <option value="30">Expires in 30 days</option>
+          </select>
+          <button type="submit" class="btn btn-secondary">Create share link</button>
+        </form>
+      </section>
+    </main>
   </body>
 </html>

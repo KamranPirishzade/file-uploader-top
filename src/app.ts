@@ -10,7 +10,7 @@ import folderQuery from "./db/folderQuery.ts";
 import folderRouter from "./routes/folderRouter.ts";
 import fileRouter from "./routes/fileRouter.ts";
 import shareRouter from "./routes/shareRouter.ts";
-import { bytesToSize } from "./utils.ts";
+import { bytesToSize, formatDate, fileTypeLabel } from "./utils.ts";
 
 const dirname = path.join(import.meta.dirname, "..");
 
@@ -22,6 +22,8 @@ app.set("view engine", "ejs");
 app.set("trust proxy", 1);
 
 app.locals.bytesToSize = bytesToSize;
+app.locals.formatDate = formatDate;
+app.locals.fileTypeLabel = fileTypeLabel;
 
 app.use(express.static(path.join(dirname, "public")));
 

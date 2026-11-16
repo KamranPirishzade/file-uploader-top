@@ -1,9 +1,19 @@
-<% folders.forEach(function(folder) { %>
-   <li>
-    <a href="/folders/<%= folder.id %>"><%= folder.name %></a>
-        <a href="/folders/<%= folder.id %>/edit">Edit</a>
-        <form action="/folders/<%= folder.id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this folder?');">
-            <button type="submit">Delete</button>
-        </form>
-    </li>
+<% folders.forEach(function (folder) { %>
+  <li class="item">
+    <span class="item-icon item-icon-folder"><%- include('partials/folderIcon') %></span>
+    <div class="item-main">
+      <a href="/folders/<%= folder.id %>" class="item-name"><%= folder.name %></a>
+      <p class="item-meta">Created <%= formatDate(folder.createdAt) %></p>
+    </div>
+    <div class="item-actions">
+      <a href="/folders/<%= folder.id %>/edit" class="btn-ghost">Rename</a>
+      <form
+        action="/folders/<%= folder.id %>/delete"
+        method="POST"
+        onsubmit="return confirm('Delete this folder and all of its files?');"
+      >
+        <button type="submit" class="btn-ghost-danger">Delete</button>
+      </form>
+    </div>
+  </li>
 <% }); %>

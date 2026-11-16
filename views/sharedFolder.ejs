@@ -1,26 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Shared Folder: <%= folder.name %></title>
+    <%- include('partials/head', { pageTitle: folder.name }) %>
   </head>
   <body>
-    <h1>Shared Folder: <%= folder.name %></h1>
-    <p>Folder ID: <%= folder.id %></p>
-    <p>Created At: <%= folder.createdAt.toLocaleString() %></p>
-    <% if(files.length === 0) { %>
-      <p>No files in this shared folder.</p>
-    <% } else { %>
-      <h2>Files in this shared folder:</h2>
-      <ul>
-        <% files.forEach(file => { %>
-          <li>
-            <a href="/share/<%= shareId %>/files/<%= file.id %>/download"><%= file.originalName %></a>
-            <span>Size: <%= bytesToSize(file.size) %></span>
-          </li>
-        <% }) %>
-      </ul>
-    <% } %>
+    <%- include('partials/header') %>
+
+    <main class="page">
+      <div class="banner">
+        <div>
+          <p class="banner-title">Shared folder</p>
+          <p class="banner-text">You can view and download these files. Copy the link to share it with others.</p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          onclick="navigator.clipboard.writeText(location.href).then(() => { this.textContent = 'Link copied'; })"
+        >
+          Copy link
+        </button>
+      </div>
+
+      <div class="mb-6 flex items-center gap-3">
+        <span class="item-icon item-icon-folder size-11"><%- include('partials/folderIcon') %></span>
+        <div class="min-w-0">
+          <h1 class="page-title"><%= folder.name %></h1>
+          <p class="page-subtitle"><%= files.length %> <%= files.length === 1 ? 'file' : 'files' %></p>
+        </div>
+      </div>
+
+      <% if (files.length === 0) { %>
+        <div class="empty-state">
+          <p class="font-medium text-gray-900">This folder is empty</p>
+          <p class="mt-1 text-sm text-gray-500">There are no files to download yet.</p>
+        </div>
+      <% } else { %>
+        <ul class="item-list">
+          <% files.forEach(file => { %>
+            <li class="item">
+              <span class="item-icon item-icon-file"><%- include('partials/fileIcon') %></span>
+              <div class="item-main">
+                <p class="truncate text-sm font-medium text-gray-900"><%= file.originalName %></p>
+                <p class="item-meta"><%= bytesToSize(file.size) %> · <%= formatDate(file.createdAt) %></p>
+              </div>
+              <a href="/share/<%= shareId %>/files/<%= file.id %>/download" class="btn btn-secondary">Download</a>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </main>
   </body>
 </html>

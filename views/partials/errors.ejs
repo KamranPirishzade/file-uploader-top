@@ -1,10 +1,10 @@
 <% if (errors && errors.length > 0) { %>
-  <div role="alert">
+  <div class="error-box" role="alert">
     <% if (errors.length === 1) { %>
       <p><%= errors[0].msg %></p>
     <% } else { %>
-      <p>Please fix the following:</p>
-      <ul>
+      <p class="font-medium">Please fix the following:</p>
+      <ul class="mt-1 list-disc pl-5">
         <% errors.forEach((error) => { %>
           <li><%= error.msg %></li>
         <% }); %>

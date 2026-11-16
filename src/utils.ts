@@ -23,4 +23,39 @@ function bytesToSize(bytes: number): string {
   return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
 }
 
-export { isUniqueValidationError, parseId, bytesToSize };
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+const FILE_TYPE_LABELS: Record<string, string> = {
+  "image/jpeg": "JPEG image",
+  "image/png": "PNG image",
+  "image/gif": "GIF image",
+  "image/webp": "WebP image",
+  "application/pdf": "PDF document",
+  "application/msword": "Word document",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "Word document",
+  "application/vnd.ms-excel": "Excel spreadsheet",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+    "Excel spreadsheet",
+  "application/vnd.ms-powerpoint": "PowerPoint presentation",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+    "PowerPoint presentation",
+};
+
+function fileTypeLabel(mimeType: string): string {
+  return FILE_TYPE_LABELS[mimeType] ?? mimeType;
+}
+
+export {
+  isUniqueValidationError,
+  parseId,
+  bytesToSize,
+  formatDate,
+  fileTypeLabel,
+};
